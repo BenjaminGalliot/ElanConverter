@@ -16,7 +16,7 @@ def xsl_convert(input_path, output_path, style_path, data={}, xsl_version="2"):
 
 
 input_file = Path("data") / "crdo-NRU_F4_10_AGRICULTURAL_ACTIVITIES.xml"
-output_file = Path("data") / f"{input_file.stem}_elan{input_file.suffix}"
+output_file = Path("data") / f"{input_file.stem}.eaf"
 style_path = "pangloss_to_elan.xsl"
 
 xsl_convert(input_file,
@@ -24,4 +24,6 @@ xsl_convert(input_file,
             style_path,
             {"author": "Alexis Michaud",
              "version": "2.7",
-             "participant": "F4"})
+             "participant": "F4",
+             "source_language_code": "nru",
+             "translation_language_codes": "fr, zh"})
