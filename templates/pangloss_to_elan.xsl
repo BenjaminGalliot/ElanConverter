@@ -111,8 +111,8 @@
 <xsl:template name="create_time_slots">
     <xsl:variable name="time_slots">
         <xsl:for-each select="S/AUDIO">
-            <time_slot><xsl:value-of select="round(@start * 1000)"/></time_slot>
-            <time_slot><xsl:value-of select="round(@end * 1000)"/></time_slot>
+            <time_slot><xsl:value-of select="format-number((@start*1000), '##########')"/></time_slot>
+            <time_slot><xsl:value-of select="format-number((@end*1000), '##########')"/></time_slot>
         </xsl:for-each>
     </xsl:variable>
     <!-- Removal of duplicated time values for cleaner XML. -->
@@ -176,11 +176,11 @@
                 <xsl:value-of select="ancestor::S/@id"/>
             </xsl:attribute>
             <xsl:attribute name="TIME_SLOT_REF1">
-                <xsl:variable name="time_value" select="round(ancestor::S/AUDIO/@start*1000)"/>
+                <xsl:variable name="time_value" select="ancestor::S/AUDIO/format-number((@start*1000), '##########')"/>
                 <xsl:value-of select="$time_slots/TIME_SLOT[@TIME_VALUE=$time_value]/@TIME_SLOT_ID"/>
             </xsl:attribute>
             <xsl:attribute name="TIME_SLOT_REF2">
-                <xsl:variable name="time_value" select="round(ancestor::S/AUDIO/@end*1000)"/>
+                <xsl:variable name="time_value" select="ancestor::S/AUDIO/format-number((@end*1000), '##########')"/>
                 <xsl:value-of select="$time_slots/TIME_SLOT[@TIME_VALUE=$time_value]/@TIME_SLOT_ID"/>
             </xsl:attribute>
             <ANNOTATION_VALUE>
