@@ -1,0 +1,14 @@
+paths:
+  templates: templates
+  source: data/na/source
+  conversion: data/na/conversion
+xsl version: "2"
+conversions:
+  template: source→target
+formats:
+  pangloss:
+    source extensions: [xml]
+    target extension: xml
+  elan:
+    source extensions: [xml, eaf]
+    target extension: eaf

@@ -15,7 +15,10 @@ parser.add_argument("--limit", type=int, default=None, help="Limit the data down
 def retrieve_files(arguments):
     data = get_data_from_pangloss(arguments.language)
     files = get_files_from_data(data)
-    download_files(files, arguments.target, not arguments.non_ecologic, arguments.limit)
+    if files:
+        download_files(files, arguments.target, not arguments.non_ecologic, arguments.limit)
+    else:
+        print(f"""There is no files associated to "{arguments.language}" language code, please verify your data!""")
 
 def get_data_from_pangloss(language):
     query = f"""
@@ -36,7 +39,9 @@ def get_data_from_pangloss(language):
         ?aggr edm:hasView ?recording .
         ?recording foaf:primaryTopic ?audioFile .
     }}
-    """.replace("\n", "")
+    """
+    print(f"Pangloss query sent to Pangloss (https://cocoon.huma-num.fr/sparql):\n{query}")
+    query = query.replace("\n", "")
     link = f"""https://cocoon.huma-num.fr/sparql?default-graph-uri=&query={urllib.parse.quote(query)}&format=application%2Fsparql-results%2Bxml&timeout=0&debug=on&log_debug_info=on"""
     with urllib.request.urlopen(link) as response:
         xml_data = response.read()
@@ -76,5 +81,8 @@ def download_file(link, path, ecologic):
 
 if __name__ == "__main__":
     arguments = parser.parse_args()
-    print(f"Arguments: {arguments}")
-    retrieve_files(arguments)
+    if len(arguments.language) != 3:
+        print("The language argument must have 3 letters!")
+    else:
+        print(f"Arguments: {arguments}")
+        retrieve_files(arguments)
