@@ -8,7 +8,9 @@
 <xsl:param name="source_language_code"/>
 <xsl:param name="translation_language_codes"/>
 
-<xsl:template match="TEXT">
+<xsl:template match="TEXT|WORDLIST">
+    <xsl:variable name="data_type" select="name(.)"/>
+    <xsl:variable name="main_tier_name" select="if ($data_type = 'TEXT') then 'S' else 'W'"/>
     <ANNOTATION_DOCUMENT>
         <xsl:attribute name="xsi:noNamespaceSchemaLocation">
             <xsl:text>http://www.mpi.nl/tools/elan/EAFv2.7.xsd</xsl:text>
@@ -22,6 +24,9 @@
         <xsl:attribute name="VERSION">
             <xsl:value-of select="$version"/>
         </xsl:attribute>
+        <xsl:attribute name="TYPE">
+            <xsl:value-of select="$data_type"/>
+        </xsl:attribute>
         <xsl:apply-templates select="HEADER"/>
         <xsl:apply-templates select="NOTE"/>
         <xsl:variable name="time_slots">
@@ -30,12 +35,17 @@
         <xsl:call-template name="TIME_ORDER">
             <xsl:with-param name="time_slots" select="$time_slots"/>
         </xsl:call-template>
-        <xsl:call-template name="S">
+        <xsl:call-template name="main_tier">
             <xsl:with-param name="time_slots" select="$time_slots"/>
+            <xsl:with-param name="main_tier_name" select="$main_tier_name"/>
         </xsl:call-template>
-        <xsl:call-template name="S-TRANSL"/>
-        <xsl:call-template name="W"/>
-        <xsl:call-template name="W-TRANSL"/>
+        <xsl:call-template name="main_tier_translation"/>
+        <xsl:if test="$main_tier_name = 'S'">
+            <xsl:call-template name="auxiliary_tier">
+                <xsl:with-param name="main_tier_name" select="$main_tier_name"/>
+            </xsl:call-template>
+            <xsl:call-template name="auxiliary_tier_translation"/>
+        </xsl:if>
         <xsl:call-template name="LINGUISTIC_TYPE"/>
     </ANNOTATION_DOCUMENT>
 </xsl:template>
@@ -110,9 +120,9 @@
 
 <xsl:template name="create_time_slots">
     <xsl:variable name="time_slots">
-        <xsl:for-each select="S/AUDIO">
-            <time_slot><xsl:value-of select="format-number((@start*1000), '##########')"/></time_slot>
-            <time_slot><xsl:value-of select="format-number((@end*1000), '##########')"/></time_slot>
+        <xsl:for-each select="(W|S)/AUDIO">
+            <time_slot><xsl:value-of select="format-number(@start*1000, '0000000000')"/></time_slot>
+            <time_slot><xsl:value-of select="format-number(@end*1000, '0000000000')"/></time_slot>
         </xsl:for-each>
     </xsl:variable>
     <!-- Removal of duplicated time values for cleaner XML. -->
@@ -126,11 +136,12 @@
     <xsl:copy-of select="$time_slots"/>
 </xsl:template>
 
-<xsl:template name="S">
+<xsl:template name="main_tier">
     <xsl:param name="time_slots"/>
+    <xsl:param name="main_tier_name"/>
     <TIER>
         <xsl:attribute name="TIER_ID">
-            <xsl:text>Phrase</xsl:text>
+            <xsl:value-of select="if ($main_tier_name = 'S') then 'Phrase' else 'Word'"/>
         </xsl:attribute>
         <xsl:attribute name="LINGUISTIC_TYPE_REF">
             <xsl:text>default-lt</xsl:text>
@@ -141,16 +152,17 @@
         <xsl:attribute name="DEFAULT_LOCALE">
             <xsl:value-of select="$source_language_code"/>
         </xsl:attribute>
-        <xsl:apply-templates select="S/FORM">
+        <xsl:apply-templates select="(W|S)/FORM">
             <xsl:with-param name="time_slots" select="$time_slots"/>
         </xsl:apply-templates>
     </TIER>
 </xsl:template>
 
-<xsl:template name="W">
+<xsl:template name="auxiliary_tier">
+    <xsl:param name="main_tier_name"/>
     <TIER>
         <xsl:attribute name="TIER_ID">
-            <xsl:text>Word</xsl:text>
+            <xsl:value-of select="if ($main_tier_name = 'S') then 'Word' else ''"/>
         </xsl:attribute>
         <xsl:attribute name="PARENT_REF">
             <xsl:text>Phrase</xsl:text>
@@ -168,19 +180,19 @@
     </TIER>
 </xsl:template>
 
-<xsl:template match="S/FORM">
+<xsl:template match="FORM[ancestor::*[1][@id]]">
     <xsl:param name="time_slots"/>
     <ANNOTATION>
         <ALIGNABLE_ANNOTATION>
             <xsl:attribute name="ANNOTATION_ID">
-                <xsl:value-of select="ancestor::S/@id"/>
+                <xsl:value-of select="ancestor::*[1]/@id"/>
             </xsl:attribute>
             <xsl:attribute name="TIME_SLOT_REF1">
-                <xsl:variable name="time_value" select="ancestor::S/AUDIO/format-number((@start*1000), '##########')"/>
+                <xsl:variable name="time_value" select="ancestor::*[1]/AUDIO/format-number((@start*1000), '0000000000')"/>
                 <xsl:value-of select="$time_slots/TIME_SLOT[@TIME_VALUE=$time_value]/@TIME_SLOT_ID"/>
             </xsl:attribute>
             <xsl:attribute name="TIME_SLOT_REF2">
-                <xsl:variable name="time_value" select="ancestor::S/AUDIO/format-number((@end*1000), '##########')"/>
+                <xsl:variable name="time_value" select="ancestor::*[1]/AUDIO/format-number((@end*1000), '0000000000')"/>
                 <xsl:value-of select="$time_slots/TIME_SLOT[@TIME_VALUE=$time_value]/@TIME_SLOT_ID"/>
             </xsl:attribute>
             <ANNOTATION_VALUE>
@@ -190,7 +202,7 @@
     </ANNOTATION>
 </xsl:template>
 
-<xsl:template match="W/FORM">
+<xsl:template match="FORM[ancestor::*[1][not(@id)]]">
     <ANNOTATION>
         <REF_ANNOTATION>
             <xsl:attribute name="ANNOTATION_ID">
@@ -208,11 +220,11 @@
     </ANNOTATION>
 </xsl:template>
 
-<xsl:template name="S-TRANSL">
+<xsl:template name="main_tier_translation">
     <xsl:variable name="nodes" select="."/>
     <xsl:for-each select="tokenize($translation_language_codes, ', ')">
         <xsl:variable name="translation_language_code" select="."/>
-        <xsl:if test="$nodes/S/TRANSL[@xml:lang=$translation_language_code]">
+        <xsl:if test="$nodes/(W|S)/TRANSL[@xml:lang=$translation_language_code]">
             <TIER>
                 <xsl:attribute name="TIER_ID">
                     <xsl:text>Phrase translation</xsl:text>
@@ -226,7 +238,7 @@
                 <xsl:attribute name="DEFAULT_LOCALE">
                     <xsl:value-of select="$translation_language_code"/>
                 </xsl:attribute>
-                <xsl:apply-templates select="$nodes/S/TRANSL[@xml:lang=$translation_language_code]">
+                <xsl:apply-templates select="$nodes/(W|S)/TRANSL[@xml:lang=$translation_language_code]">
                     <xsl:with-param name="translation_language_code" select="$translation_language_code"/>
                 </xsl:apply-templates>
             </TIER>
@@ -234,7 +246,7 @@
     </xsl:for-each>
 </xsl:template>
 
-<xsl:template name="W-TRANSL">
+<xsl:template name="auxiliary_tier_translation">
     <xsl:variable name="nodes" select="."/>
     <xsl:for-each select="tokenize($translation_language_codes, ', ')">
         <xsl:variable name="translation_language_code" select="."/>
@@ -260,38 +272,18 @@
     </xsl:for-each>
 </xsl:template>
 
-<xsl:template match="S/TRANSL">
+<xsl:template match="TRANSL">
     <xsl:param name="translation_language_code"/>
     <ANNOTATION>
         <REF_ANNOTATION>
             <xsl:attribute name="ANNOTATION_ID">
-                <xsl:value-of select="ancestor::S/@id"/>
-                <xsl:text>_t</xsl:text>
+                <xsl:value-of select="ancestor::*[@id][1]/@id"/>
+                <xsl:value-of select="if (name(..) = 'W') then '_wt' else '_t'"/>
                 <xsl:value-of select="position()"/>
                 <xsl:value-of select="$translation_language_code"/>
             </xsl:attribute>
             <xsl:attribute name="ANNOTATION_REF">
-                <xsl:value-of select="ancestor::S/@id"/>
-            </xsl:attribute>
-            <ANNOTATION_VALUE>
-                <xsl:value-of select="."/>
-            </ANNOTATION_VALUE>
-        </REF_ANNOTATION>
-    </ANNOTATION>
-</xsl:template>
-
-<xsl:template match="W/TRANSL">
-    <xsl:param name="translation_language_code"/>
-    <ANNOTATION>
-        <REF_ANNOTATION>
-            <xsl:attribute name="ANNOTATION_ID">
-                <xsl:value-of select="ancestor::S/@id"/>
-                <xsl:text>_wt</xsl:text>
-                <xsl:value-of select="position()"/>
-                <xsl:value-of select="$translation_language_code"/>
-            </xsl:attribute>
-            <xsl:attribute name="ANNOTATION_REF">
-                <xsl:value-of select="ancestor::S/@id"/>
+                <xsl:value-of select="ancestor::*[@id][1]/@id"/>
             </xsl:attribute>
             <ANNOTATION_VALUE>
                 <xsl:value-of select="."/>
