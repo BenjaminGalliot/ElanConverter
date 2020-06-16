@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ANNOTATION_DOCUMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv2.7.xsd"
-                     DATE="2020-06-13T00:21:59.97+02:00"
+                     DATE="2020-06-16T13:58:54.999+02:00"
                      AUTHOR="Alexis Michaud"
-                     VERSION="2.7"
-                     TYPE="WORDLIST">
+                     VERSION="2.7">
    <HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
+      <PROPERTY NAME="type">WORDLIST</PROPERTY>
       <MEDIA_DESCRIPTOR MEDIA_URL="crdo-NRU_F4_ACCOMP_PFV.wav" MIME_TYPE="audio/x-wav"/>
       <PROPERTY NAME="title" LOCALE="eng">Verbs of all tone categories, in the following frame: accomplished+verb+perfective. 2007 recording.</PROPERTY>
    </HEADER>
@@ -191,7 +191,7 @@
          </ALIGNABLE_ANNOTATION>
       </ANNOTATION>
    </TIER>
-   <TIER TIER_ID="Phrase translation" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
+   <TIER TIER_ID="Phrase translation fr" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
          DEFAULT_LOCALE="fr">
       <ANNOTATION>
          <REF_ANNOTATION ANNOTATION_ID="AccompPfv_W001_wt1fr" ANNOTATION_REF="AccompPfv_W001">
@@ -319,7 +319,7 @@
          </REF_ANNOTATION>
       </ANNOTATION>
    </TIER>
-   <TIER TIER_ID="Phrase translation" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
+   <TIER TIER_ID="Phrase translation zh" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
          DEFAULT_LOCALE="zh">
       <ANNOTATION>
          <REF_ANNOTATION ANNOTATION_ID="AccompPfv_W001_wt1zh" ANNOTATION_REF="AccompPfv_W001">

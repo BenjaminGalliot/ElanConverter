@@ -4,3 +4,6 @@ Na-F4:
   participant: F4
   source language code: nru
   translation language codes: "fr, zh"
+  bad character regex: "[◊|]"
+  options:
+    audio pathname case normalization: true

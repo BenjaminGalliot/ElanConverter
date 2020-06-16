@@ -7,10 +7,13 @@
 <xsl:param name="participant"/>
 <xsl:param name="source_language_code"/>
 <xsl:param name="translation_language_codes"/>
+<xsl:param name="bad_character_regex"/>
+<xsl:param name="audio_path"/>
+
+<xsl:param name="data_type" select="name(/*)"/>
+<xsl:param name="main_tier_name" select="if ($data_type = 'TEXT') then 'S' else if ($data_type = 'WORDLIST') then 'W' else ''"/>
 
 <xsl:template match="TEXT|WORDLIST">
-    <xsl:variable name="data_type" select="name(.)"/>
-    <xsl:variable name="main_tier_name" select="if ($data_type = 'TEXT') then 'S' else 'W'"/>
     <ANNOTATION_DOCUMENT>
         <xsl:attribute name="xsi:noNamespaceSchemaLocation">
             <xsl:text>http://www.mpi.nl/tools/elan/EAFv2.7.xsd</xsl:text>
@@ -24,9 +27,6 @@
         <xsl:attribute name="VERSION">
             <xsl:value-of select="$version"/>
         </xsl:attribute>
-        <xsl:attribute name="TYPE">
-            <xsl:value-of select="$data_type"/>
-        </xsl:attribute>
         <xsl:apply-templates select="HEADER"/>
         <xsl:apply-templates select="NOTE"/>
         <xsl:variable name="time_slots">
@@ -37,13 +37,10 @@
         </xsl:call-template>
         <xsl:call-template name="main_tier">
             <xsl:with-param name="time_slots" select="$time_slots"/>
-            <xsl:with-param name="main_tier_name" select="$main_tier_name"/>
         </xsl:call-template>
         <xsl:call-template name="main_tier_translation"/>
         <xsl:if test="$main_tier_name = 'S'">
-            <xsl:call-template name="auxiliary_tier">
-                <xsl:with-param name="main_tier_name" select="$main_tier_name"/>
-            </xsl:call-template>
+            <xsl:call-template name="auxiliary_tier"/>
             <xsl:call-template name="auxiliary_tier_translation"/>
         </xsl:if>
         <xsl:call-template name="LINGUISTIC_TYPE"/>
@@ -58,15 +55,25 @@
         <xsl:attribute name="TIME_UNITS">
             <xsl:text>milliseconds</xsl:text>
         </xsl:attribute>
+        <xsl:call-template name="DATA_TYPE"/>
         <xsl:apply-templates select="SOUNDFILE"/>
         <xsl:apply-templates select="TITLE"/>
     </HEADER>
 </xsl:template>
 
+<xsl:template name="DATA_TYPE">
+    <PROPERTY>
+        <xsl:attribute name="NAME">
+            <xsl:text>type</xsl:text>
+        </xsl:attribute>
+        <xsl:value-of select="$data_type"/>
+    </PROPERTY>
+</xsl:template>
+
 <xsl:template match="SOUNDFILE">
     <MEDIA_DESCRIPTOR>
         <xsl:attribute name="MEDIA_URL">
-            <xsl:value-of select="@href"/>
+            <xsl:value-of select="if ($audio_path != '') then $audio_path else @href"/>
         </xsl:attribute>
         <xsl:attribute name="MIME_TYPE">
             <xsl:text>audio/x-wav</xsl:text>
@@ -138,7 +145,6 @@
 
 <xsl:template name="main_tier">
     <xsl:param name="time_slots"/>
-    <xsl:param name="main_tier_name"/>
     <TIER>
         <xsl:attribute name="TIER_ID">
             <xsl:value-of select="if ($main_tier_name = 'S') then 'Phrase' else 'Word'"/>
@@ -159,7 +165,6 @@
 </xsl:template>
 
 <xsl:template name="auxiliary_tier">
-    <xsl:param name="main_tier_name"/>
     <TIER>
         <xsl:attribute name="TIER_ID">
             <xsl:value-of select="if ($main_tier_name = 'S') then 'Word' else ''"/>
@@ -196,7 +201,7 @@
                 <xsl:value-of select="$time_slots/TIME_SLOT[@TIME_VALUE=$time_value]/@TIME_SLOT_ID"/>
             </xsl:attribute>
             <ANNOTATION_VALUE>
-                <xsl:value-of select="replace(replace(., '[◊|]', ''), ' +', ' ')"/>
+                <xsl:value-of select="replace(replace(., $bad_character_regex, ''), ' +', ' ')"/>
             </ANNOTATION_VALUE>
         </ALIGNABLE_ANNOTATION>
     </ANNOTATION>
@@ -214,7 +219,7 @@
                 <xsl:value-of select="ancestor::S/@id"/>
             </xsl:attribute>
             <ANNOTATION_VALUE>
-                <xsl:value-of select="."/>
+                <xsl:value-of select="replace(replace(., $bad_character_regex, ''), ' +', ' ')"/>
             </ANNOTATION_VALUE>
         </REF_ANNOTATION>
     </ANNOTATION>
@@ -227,7 +232,8 @@
         <xsl:if test="$nodes/(W|S)/TRANSL[@xml:lang=$translation_language_code]">
             <TIER>
                 <xsl:attribute name="TIER_ID">
-                    <xsl:text>Phrase translation</xsl:text>
+                    <xsl:text>Phrase translation </xsl:text>
+                    <xsl:value-of select="$translation_language_code"/>
                 </xsl:attribute>
                 <xsl:attribute name="PARENT_REF">
                     <xsl:text>Phrase</xsl:text>
@@ -253,7 +259,8 @@
         <xsl:if test="$nodes/S/W/TRANSL[@xml:lang=$translation_language_code]">
             <TIER>
                 <xsl:attribute name="TIER_ID">
-                    <xsl:text>Word translation</xsl:text>
+                    <xsl:text>Word translation </xsl:text>
+                    <xsl:value-of select="$translation_language_code"/>
                 </xsl:attribute>
                 <xsl:attribute name="PARENT_REF">
                     <xsl:text>Word</xsl:text>
@@ -286,7 +293,7 @@
                 <xsl:value-of select="ancestor::*[@id][1]/@id"/>
             </xsl:attribute>
             <ANNOTATION_VALUE>
-                <xsl:value-of select="."/>
+                <xsl:value-of select="replace(replace(., $bad_character_regex, ''), ' +', ' ')"/>
             </ANNOTATION_VALUE>
         </REF_ANNOTATION>
     </ANNOTATION>

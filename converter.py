@@ -28,7 +28,9 @@ def convert(configuration):
         print(f"""There is no files with {configuration["input extensions"]} extensions in {configuration["input path"]}, please verify your data!""")
 
 def xsl_convert(input_path, output_path, style_path, data, xsl_version="2"):
-    parameters = " ".join([f'%s="{value}"' % re.sub(r"\s", "_", key) for key, value in data.items()])
+    if "options" in data and data["options"].get("audio pathname case normalization", False):
+        data["audio path"] = input_path.with_suffix(".wav").name
+    parameters = " ".join([f'%s="{value}"' % re.sub(r"\s", "_", key) for key, value in data.items() if isinstance(value, str)])
     if platform in ["linux", "linux2"]:
         xslt_command = "saxonb-xslt"
     elif platform == "darwin":

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ANNOTATION_DOCUMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv2.7.xsd"
-                     DATE="2020-06-13T00:21:59.143+02:00"
+                     DATE="2020-06-16T13:58:54.162+02:00"
                      AUTHOR="Alexis Michaud"
-                     VERSION="2.7"
-                     TYPE="TEXT">
+                     VERSION="2.7">
    <HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
-      <MEDIA_DESCRIPTOR MEDIA_URL="crdo-NRU_F4_10_AgriculturalActivities.wav" MIME_TYPE="audio/x-wav"/>
+      <PROPERTY NAME="type">TEXT</PROPERTY>
+      <MEDIA_DESCRIPTOR MEDIA_URL="crdo-NRU_F4_10_AGRICULTURAL_ACTIVITIES.wav" MIME_TYPE="audio/x-wav"/>
       <PROPERTY NAME="title" LOCALE="eng">Agriculture: Agricultural activities over the course of the year (version 1)</PROPERTY>
       <PROPERTY NAME="title" LOCALE="cmn">一年的农活（第一次讲述版本）</PROPERTY>
       <PROPERTY NAME="title" LOCALE="fra">Les travaux agricoles au fil de l'année (version 1)</PROPERTY>
@@ -715,7 +715,7 @@
          </ALIGNABLE_ANNOTATION>
       </ANNOTATION>
    </TIER>
-   <TIER TIER_ID="Phrase translation" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
+   <TIER TIER_ID="Phrase translation fr" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
          DEFAULT_LOCALE="fr">
       <ANNOTATION>
          <REF_ANNOTATION ANNOTATION_ID="Agriculture_S001_t1fr" ANNOTATION_REF="Agriculture_S001">
@@ -939,7 +939,7 @@
       </ANNOTATION>
       <ANNOTATION>
          <REF_ANNOTATION ANNOTATION_ID="Agriculture_S045_t45fr" ANNOTATION_REF="Agriculture_S045">
-            <ANNOTATION_VALUE>euh…  à partir de janvier, on plante! (on recommence à planter!)</ANNOTATION_VALUE>
+            <ANNOTATION_VALUE>euh… à partir de janvier, on plante! (on recommence à planter!)</ANNOTATION_VALUE>
          </REF_ANNOTATION>
       </ANNOTATION>
       <ANNOTATION>
@@ -1278,7 +1278,7 @@
          </REF_ANNOTATION>
       </ANNOTATION>
    </TIER>
-   <TIER TIER_ID="Phrase translation" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
+   <TIER TIER_ID="Phrase translation zh" PARENT_REF="Phrase" LINGUISTIC_TYPE_REF="meta"
          DEFAULT_LOCALE="zh">
       <ANNOTATION>
          <REF_ANNOTATION ANNOTATION_ID="Agriculture_S001_t1zh" ANNOTATION_REF="Agriculture_S001">
@@ -7814,7 +7814,7 @@
          </REF_ANNOTATION>
       </ANNOTATION>
    </TIER>
-   <TIER TIER_ID="Word translation" PARENT_REF="Word" LINGUISTIC_TYPE_REF="meta"
+   <TIER TIER_ID="Word translation fr" PARENT_REF="Word" LINGUISTIC_TYPE_REF="meta"
          DEFAULT_LOCALE="fr">
       <ANNOTATION>
          <REF_ANNOTATION ANNOTATION_ID="Agriculture_S001_wt1fr" ANNOTATION_REF="Agriculture_S001">
